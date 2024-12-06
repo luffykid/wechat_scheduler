@@ -53,7 +53,7 @@ const storage = {
 const config = {
     appName: '微信',
     waitForFindOne: 5000,
-    waitForOpenApp: 3000,
+    waitForOpenApp: 10000,
     maxClickCount: 5
 }
 
@@ -441,15 +441,15 @@ function wakeUpAndUnlockByPinCode(pinCode) {
         //输入pin
         let result = true;
         for(let code of pinCode) {
-            result = click(code) || result;
+            result = click(code) && result;
         }
         if (result) {
             log('屏幕已解锁');
             return;
         }
-        tryCount += 1;
         log('休息20s后再试')
-        sleep(20 * 1000);
+        sleep(20000);
+        tryCount += 1;
     } while (tryCount < maxTryCount);
     throw new Error('未能唤醒并解锁屏幕');
 }
