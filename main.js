@@ -239,13 +239,10 @@ function scheduleTask() {
         clearTimeout(timerId);
         storage.removeTimerId();
     }
-    auto.setMode('fast');  // 启用快速模式
     auto.waitFor();
     threads.start(() => {
         timerId = setTimeout(() => {
             const pinCode = storage.getPinCode();
-            wakeUpAndUnlockByPinCode(pinCode);
-
             const albumCount = storage.getImageCount();
             const contactName = storage.getGroupName();
             toast('开始执行微信定时任务，请勿操作手机');
@@ -253,13 +250,16 @@ function scheduleTask() {
             let tryCount = 0;
             do {
                 try {
+                    if (!device.isScreenOn()) {
+                        wakeUpAndUnlockByPinCode(pinCode);
+                    }
                     sendAlbumToContact(albumCount, contactName);
                     break;
                 } catch (error) {
                     log(error);
                     sleep(3000);
                     tryCount += 1;
-                    log(`进行第${tryCount}次尝试执行发送${albumCount}张照片给指定联系人「${contactName}」`)
+                    toast(`进行第${tryCount}次尝试执行发送${albumCount}张照片给指定联系人「${contactName}」`)
                 }
             } while (tryCount < maxTryCount);
             const successful = tryCount < maxTryCount;
@@ -422,9 +422,6 @@ function selectAlbumAndSend(albumCount) {
 }
 
 function wakeUpAndUnlockByPinCode(pinCode) {
-    if (device.isScreenOn()) {
-        return;
-    }
     const maxTryCount = 10;
     let tryCount = 0;
     do {
