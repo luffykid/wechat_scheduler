@@ -238,9 +238,9 @@ function scheduleTask() {
     if (timerId) {
         clearTimeout(timerId);
         storage.removeTimerId();
-        log('关闭之前的timeout');
     }
-    log('开启新的timeout')
+    auto.setMode('fast');  // 启用快速模式
+    auto.waitFor();
     threads.start(() => {
         timerId = setTimeout(() => {
             const pinCode = storage.getPinCode();
